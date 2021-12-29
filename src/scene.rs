@@ -19,7 +19,6 @@ pub struct ScenePlugin;
 
 impl Plugin for ScenePlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app
-            .add_startup_system(scene.system());
+        app.add_startup_system(scene.system());
     }
 }

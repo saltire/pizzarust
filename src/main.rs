@@ -2,15 +2,36 @@ use bevy::prelude::*;
 use bevy::render::pass::ClearColor;
 use bevy::window::WindowMode;
 
+mod constants;
+mod cursor;
 mod scene;
 
+use constants::*;
 
-fn initial_size(mut windows: ResMut<Windows>) {
-    let window = windows.get_primary_mut().unwrap();
-    let scale_x = window.width() / 480.;
-    let scale_y = window.height() / 270.;
-    let scale = scale_x.min(scale_y).floor();
-    window.set_scale_factor_override(Some(scale.into()));
+
+#[derive(Debug)]
+pub struct Display {
+    scale: f32,
+    offset_x: f32,
+    offset_y: f32,
+}
+
+fn initial_size(mut commands: Commands, mut windows: ResMut<Windows>) {
+    if let Some(window) = windows.get_primary_mut() {
+        let width = window.width();
+        let height = window.height();
+        let scale_x = width / PIXEL_WIDTH;
+        let scale_y = height / PIXEL_HEIGHT;
+        let scale = scale_x.min(scale_y).floor();
+
+        commands.spawn().insert(Display {
+            scale,
+            offset_x: (width - PIXEL_WIDTH * scale) / 2.,
+            offset_y: (height - PIXEL_HEIGHT * scale) / 2.,
+        });
+
+        window.set_scale_factor_override(Some(scale.into()));
+    }
 }
 
 fn main() {
@@ -18,8 +39,7 @@ fn main() {
         .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(WindowDescriptor {
             title: "Pizza".to_string(),
-            width: 480.,
-            height: 270.,
+            cursor_visible: false,
             mode: WindowMode::Fullscreen {
                 use_size: false,
             },
@@ -27,6 +47,7 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(scene::ScenePlugin)
+        .add_plugin(cursor::CursorPlugin)
         .add_startup_system(initial_size.system())
         .run();
 }
