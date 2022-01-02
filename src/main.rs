@@ -22,32 +22,34 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(scene::ScenePlugin)
         .add_plugin(cursor::CursorPlugin)
-        .add_startup_system(initial_size.system())
+        .add_startup_system(initialize.system().label("init"))
         .run();
 }
 
 #[derive(Debug)]
 pub struct Display {
     scale: f32,
-    offset: Vec2,
+    window_size: Vec2,
 }
 
-fn initial_size(mut commands: Commands, mut windows: ResMut<Windows>) {
+fn initialize(
+    mut commands: Commands,
+    mut windows: ResMut<Windows>,
+) {
     if let Some(window) = windows.get_primary_mut() {
-        let width = window.width();
-        let height = window.height();
-        let scale_x = width / PIXEL_WIDTH;
-        let scale_y = height / PIXEL_HEIGHT;
+        let window_size = Vec2::new(window.width(), window.height());
+        let scale_x = window_size.x / PIXEL_WIDTH;
+        let scale_y = window_size.y / PIXEL_HEIGHT;
         let scale = scale_x.min(scale_y).floor();
+
+        window.set_scale_factor_override(Some(scale.into()));
 
         commands.spawn().insert(Display {
             scale,
-            offset: Vec2::new(
-                (width - PIXEL_WIDTH * scale) / 2.,
-                (height - PIXEL_HEIGHT * scale) / 2.,
-            ),
+            window_size,
         });
-
-        window.set_scale_factor_override(Some(scale.into()));
     }
+
+    commands.spawn_bundle(UiCameraBundle::default());
+    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
 }

@@ -12,7 +12,7 @@ pub struct CursorPlugin;
 impl Plugin for CursorPlugin {
     fn build (&self, app: &mut AppBuilder) {
         app
-            .add_startup_system(create_cursor.system())
+            .add_startup_system(create_cursor.system().after("init"))
             .add_system(move_cursor.system());
     }
 }
@@ -27,35 +27,45 @@ fn create_cursor(
 ) {
     let cursor_handle = asset_server.load("hand-cursor.png");
 
+    // Put cursor inside a blank parent node as this bumps its z-index above the black bars.
     commands
-        .spawn_bundle(SpriteBundle {
-            material: materials.add(cursor_handle.into()),
+        .spawn_bundle(NodeBundle {
+            style: Style {
+                size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                ..Default::default()
+            },
+            material: materials.add(Color::NONE.into()),
             ..Default::default()
         })
-        .insert(Cursor);
+        .with_children(|parent| {
+            parent
+                .spawn_bundle(ImageBundle {
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        ..Default::default()
+                    },
+                    material: materials.add(cursor_handle.into()),
+                    ..Default::default()
+                })
+                .insert(Cursor);
+        });
 }
 
 fn move_cursor(
-    mut cursors: Query<(&Cursor, &mut Transform)>,
+    mut cursors: Query<(&Cursor, &mut Style)>,
     mut cursor_moved_events: EventReader<CursorMoved>,
     displays: Query<&Display>,
 ) {
     for display in displays.iter() {
         for event in cursor_moved_events.iter() {
-            for (_cursor, mut transform) in cursors.iter_mut() {
-                transform.translation = Vec3::new(
-                    ((event.position.x - display.offset.x) / display.scale)
-                        .floor()
-                        - PIXEL_WIDTH / 2.
-                        + CURSOR_WIDTH / 2.
-                        - CURSOR_HOTSPOT_X,
-                    ((event.position.y - display.offset.y) / display.scale)
-                        .floor()
-                        - PIXEL_HEIGHT / 2.
-                        - CURSOR_HEIGHT / 2.
-                        + CURSOR_HOTSPOT_Y
-                        + 1.,
-                    10.);
+            for (_cursor, mut style) in cursors.iter_mut() {
+                style.position = Rect {
+                    left: Val::Px((event.position.x / display.scale).floor()
+                        - CURSOR_HOTSPOT_X),
+                    bottom: Val::Px(((event.position.y - 1.) / display.scale).floor()
+                        - CURSOR_HOTSPOT_Y),
+                    ..Default::default()
+                };
             }
         }
     }
