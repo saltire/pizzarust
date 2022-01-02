@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy::render::pass::ClearColor;
 use bevy::window::WindowMode;
 
 mod constants;
@@ -8,31 +7,6 @@ mod scene;
 
 use constants::*;
 
-
-#[derive(Debug)]
-pub struct Display {
-    scale: f32,
-    offset_x: f32,
-    offset_y: f32,
-}
-
-fn initial_size(mut commands: Commands, mut windows: ResMut<Windows>) {
-    if let Some(window) = windows.get_primary_mut() {
-        let width = window.width();
-        let height = window.height();
-        let scale_x = width / PIXEL_WIDTH;
-        let scale_y = height / PIXEL_HEIGHT;
-        let scale = scale_x.min(scale_y).floor();
-
-        commands.spawn().insert(Display {
-            scale,
-            offset_x: (width - PIXEL_WIDTH * scale) / 2.,
-            offset_y: (height - PIXEL_HEIGHT * scale) / 2.,
-        });
-
-        window.set_scale_factor_override(Some(scale.into()));
-    }
-}
 
 fn main() {
     App::build()
@@ -50,4 +24,30 @@ fn main() {
         .add_plugin(cursor::CursorPlugin)
         .add_startup_system(initial_size.system())
         .run();
+}
+
+#[derive(Debug)]
+pub struct Display {
+    scale: f32,
+    offset: Vec2,
+}
+
+fn initial_size(mut commands: Commands, mut windows: ResMut<Windows>) {
+    if let Some(window) = windows.get_primary_mut() {
+        let width = window.width();
+        let height = window.height();
+        let scale_x = width / PIXEL_WIDTH;
+        let scale_y = height / PIXEL_HEIGHT;
+        let scale = scale_x.min(scale_y).floor();
+
+        commands.spawn().insert(Display {
+            scale,
+            offset: Vec2::new(
+                (width - PIXEL_WIDTH * scale) / 2.,
+                (height - PIXEL_HEIGHT * scale) / 2.,
+            ),
+        });
+
+        window.set_scale_factor_override(Some(scale.into()));
+    }
 }
