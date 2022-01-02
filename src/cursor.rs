@@ -42,6 +42,11 @@ fn create_cursor(
                 .spawn_bundle(ImageBundle {
                     style: Style {
                         position_type: PositionType::Absolute,
+                        position: Rect {
+                            left: Val::Percent(50.),
+                            bottom: Val::Percent(50.),
+                            ..Default::default()
+                        },
                         ..Default::default()
                     },
                     material: materials.add(cursor_handle.into()),

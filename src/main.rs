@@ -25,6 +25,7 @@ fn main() {
         .add_plugin(cursor::CursorPlugin)
         .add_plugin(font::FontPlugin)
         .add_startup_system(initialize.system().label("init"))
+        .add_system(keys.system())
         .run();
 }
 
@@ -54,4 +55,10 @@ fn initialize(
 
     commands.spawn_bundle(UiCameraBundle::default());
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
+}
+
+fn keys(keys: Res<Input<KeyCode>>) {
+    if keys.just_released(KeyCode::Escape) {
+        std::process::exit(0);
+    }
 }

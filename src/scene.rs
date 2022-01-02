@@ -9,7 +9,7 @@ impl Plugin for ScenePlugin {
     fn build(&self, app: &mut AppBuilder) {
         app
             .add_startup_system(black_bars.system().after("init"))
-            .add_startup_system(scene.system());
+            .add_startup_system(scene.system().after("init"));
     }
 }
 
