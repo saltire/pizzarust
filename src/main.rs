@@ -3,6 +3,7 @@ use bevy::window::WindowMode;
 
 mod constants;
 mod cursor;
+mod font;
 mod scene;
 
 use constants::*;
@@ -22,6 +23,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(scene::ScenePlugin)
         .add_plugin(cursor::CursorPlugin)
+        .add_plugin(font::FontPlugin)
         .add_startup_system(initialize.system().label("init"))
         .run();
 }
