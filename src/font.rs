@@ -45,11 +45,11 @@ fn setup(
     });
 
     commands.spawn().insert(BitmapText {
-        text: "Pizza!!".to_string(),
+        text: "Nemo et voluptas et cumque ipsum cumque inventore. Eveniet soluta odio sint aut asperiores et. Maxime unde cupiditate sunt dolor corporis nihil.".to_string(),
         font: "GeeBee".to_string(),
-        position: Vec3::new(0., 0., 2.),
-        size: Vec2::new(100., 20.),
-        padding: 2.,
+        position: Vec3::new(-100., 0., 2.),
+        size: Vec2::new(160., 200.),
+        padding: 4.,
         background_color: Color::BLACK,
         ..Default::default()
     });
@@ -72,22 +72,62 @@ fn render_text(
                         ..Default::default()
                     })
                     .with_children(|parent| {
-                        let offset_x = (font.size.x - text.size.x) / 2. + text.padding;
-                        let offset_y = (text.size.y - font.size.y) / 2. - text.padding;
+                        let maxlen = ((text.size.x - text.padding * 2.) / font.size.x) as usize;
 
-                        for (i, b) in text.text.to_uppercase().bytes().enumerate() {
-                            parent.spawn_bundle(SpriteSheetBundle {
-                                texture_atlas: font.texture_atlas_handle.clone(),
-                                sprite: TextureAtlasSprite {
-                                    index: b as u32 - 32,
+                        let mut lines: Vec<&str> = vec![];
+                        if maxlen <= 0 {
+                            lines.push(&text.text);
+                        } else {
+                            let mut linestart = 0;
+                            let mut lineend = 0;
+                            for (i, char) in text.text.chars().enumerate() {
+                                if char == ' ' {
+                                    if i - linestart <= maxlen {
+                                        // Line not full yet; mark this space and keep going.
+                                        lineend = i + 1;
+                                    } else if lineend == linestart {
+                                        // Line full with a single word; push everything up to here.
+                                        lineend = i + 1;
+                                        lines.push(&text.text[linestart..lineend - 1]);
+                                        linestart = lineend;
+                                    } else {
+                                        // Line full with more than one word;
+                                        // push up to the end of the last one.
+                                        lines.push(&text.text[linestart..lineend - 1]);
+                                        linestart = lineend;
+                                        lineend = i + 1;
+                                    }
+                                }
+                            }
+                            if lineend > linestart && text.text.len() - linestart > maxlen {
+                                // End of text with more than one word remaining
+                                // and longer than a line; push up to the end of the last word.
+                                lines.push(&text.text[linestart..lineend - 1]);
+                                linestart = lineend;
+                            }
+                            // Push the remaining text.
+                            lines.push(&text.text[linestart..]);
+                        }
+
+                        let offset_x = (font.size.x - text.size.x) / 2. + text.padding;
+                        for (y, line) in lines.iter().enumerate() {
+                            let offset_y = (text.size.y - font.size.y) / 2. - text.padding
+                                - font.size.y * y as f32;
+
+                            for (x, b) in line.to_uppercase().bytes().enumerate() {
+                                parent.spawn_bundle(SpriteSheetBundle {
+                                    texture_atlas: font.texture_atlas_handle.clone(),
+                                    sprite: TextureAtlasSprite {
+                                        index: b as u32 - 32,
+                                        ..Default::default()
+                                    },
+                                    transform: Transform::from_xyz(
+                                        offset_x + font.size.x * x as f32,
+                                        offset_y,
+                                        1.),
                                     ..Default::default()
-                                },
-                                transform: Transform::from_xyz(
-                                    offset_x + font.size.x * i as f32,
-                                    offset_y,
-                                    1.),
-                                ..Default::default()
-                            });
+                                });
+                            }
                         }
                     });
             }
