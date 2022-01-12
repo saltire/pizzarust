@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use std::path::Path;
 
+use super::bounce::{Bounce, BounceEffect, EffectType};
+
 
 pub struct FontPlugin;
 
@@ -25,7 +27,6 @@ struct BitmapFont {
     texture_atlas_handle: Handle<TextureAtlas>,
 }
 
-#[derive(Default)]
 struct BitmapText {
     text: String,
     font: String,
@@ -33,6 +34,18 @@ struct BitmapText {
     box_size: Vec2,
     padding: f32,
     background_color: Color,
+}
+impl Default for BitmapText {
+    fn default() -> Self {
+        BitmapText {
+            text: "".into(),
+            font: "".into(),
+            position: Vec3::ZERO,
+            box_size: Vec2::ZERO,
+            padding: 0.,
+            background_color: Color::NONE,
+        }
+    }
 }
 
 fn load_fonts(
@@ -79,22 +92,38 @@ fn create_text(mut commands: Commands) {
     //     ..Default::default()
     // });
 
-    commands.spawn().insert(BitmapText {
-        text: "Pizza!".into(),
-        font: "BluePink".into(),
-        background_color: Color::BLACK,
-        padding: 6.,
-        ..Default::default()
-    });
+    commands.spawn()
+        .insert(BitmapText {
+            text: "Pizza!".into(),
+            font: "BluePink".into(),
+            padding: 6.,
+            ..Default::default()
+        })
+        .insert(Bounce {
+            effects: vec![
+                BounceEffect {
+                    effect_type: EffectType::Bounce,
+                    distance: 30.,
+                    period: 0.75,
+                    ..Default::default()
+                },
+                BounceEffect {
+                    effect_type: EffectType::HorizontalWave,
+                    distance: 50.,
+                    period: 2.,
+                    ..Default::default()
+                },
+            ],
+        });
 }
 
 fn render_text(
     mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
     fonts: Query<&BitmapFont>,
-    texts: Query<&BitmapText, Added<BitmapText>>,
+    texts: Query<(&BitmapText, Entity), Added<BitmapText>>,
 ) {
-    for text in texts.iter() {
+    for (text, entity) in texts.iter() {
         for font in fonts.iter() {
             if font.info.name == text.font {
                 let maxlen = ((text.box_size.x - text.padding * 2.) / font.info.tile_size.x)
@@ -141,8 +170,9 @@ fn render_text(
                         font.info.tile_size.y + text.padding * 2.)
                 };
 
-                commands
-                    .spawn_bundle(SpriteBundle {
+                // Add sprites onto the existing BitmapText entity.
+                commands.entity(entity)
+                    .insert_bundle(SpriteBundle {
                         material: materials.add(text.background_color.into()),
                         transform: Transform::from_translation(text.position),
                         sprite: Sprite::new(box_size),

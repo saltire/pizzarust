@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy::window::WindowMode;
 
+mod bounce;
 mod constants;
 mod cursor;
 mod font;
@@ -24,6 +25,7 @@ fn main() {
         .add_plugin(scene::ScenePlugin)
         .add_plugin(cursor::CursorPlugin)
         .add_plugin(font::FontPlugin)
+        .add_plugin(bounce::BouncePlugin)
         .add_startup_system(initialize.system().label("init"))
         .add_system(keys.system())
         .run();
