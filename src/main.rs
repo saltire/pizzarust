@@ -13,7 +13,7 @@ fn main() {
     App::build()
         .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(WindowDescriptor {
-            title: "Pizza".to_string(),
+            title: "Pizza".into(),
             cursor_visible: false,
             mode: WindowMode::Fullscreen {
                 use_size: false,
