@@ -7,11 +7,11 @@ use super::bounce::{Bounce, BounceEffect, EffectType};
 pub struct FontPlugin;
 
 impl Plugin for FontPlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app
-            .add_startup_system(load_fonts.system())
-            .add_startup_system(create_text.system())
-            .add_system(render_text.system());
+            .add_startup_system(load_fonts)
+            .add_startup_system(create_text)
+            .add_system(render_text);
     }
 }
 
@@ -22,11 +22,13 @@ struct FontInfo {
     grid_size: Vec2,
 }
 
+#[derive(Component)]
 struct BitmapFont {
     info: FontInfo,
     texture_atlas_handle: Handle<TextureAtlas>,
 }
 
+#[derive(Component)]
 struct BitmapText {
     text: String,
     font: String,
@@ -119,7 +121,6 @@ fn create_text(mut commands: Commands) {
 
 fn render_text(
     mut commands: Commands,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     fonts: Query<&BitmapFont>,
     texts: Query<(&BitmapText, Entity), Added<BitmapText>>,
 ) {
@@ -173,9 +174,12 @@ fn render_text(
                 // Add sprites onto the existing BitmapText entity.
                 commands.entity(entity)
                     .insert_bundle(SpriteBundle {
-                        material: materials.add(text.background_color.into()),
                         transform: Transform::from_translation(text.position),
-                        sprite: Sprite::new(box_size),
+                        sprite: Sprite {
+                            color: text.background_color,
+                            custom_size: Some(box_size),
+                            ..Default::default()
+                        },
                         ..Default::default()
                     })
                     .with_children(|parent| {
@@ -187,10 +191,7 @@ fn render_text(
                             for (x, b) in line.to_uppercase().bytes().enumerate() {
                                 parent.spawn_bundle(SpriteSheetBundle {
                                     texture_atlas: font.texture_atlas_handle.clone(),
-                                    sprite: TextureAtlasSprite {
-                                        index: b as u32 - 32,
-                                        ..Default::default()
-                                    },
+                                    sprite: TextureAtlasSprite::new((b - 32).into()),
                                     transform: Transform::from_xyz(
                                         offset_x + font.info.tile_size.x * x as f32,
                                         offset_y,

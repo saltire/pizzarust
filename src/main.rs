@@ -11,14 +11,12 @@ use constants::*;
 
 
 fn main() {
-    App::build()
+    App::new()
         .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(WindowDescriptor {
             title: "Pizza".into(),
             cursor_visible: false,
-            mode: WindowMode::Fullscreen {
-                use_size: false,
-            },
+            mode: WindowMode::Fullscreen,
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
@@ -26,12 +24,12 @@ fn main() {
         .add_plugin(cursor::CursorPlugin)
         .add_plugin(font::FontPlugin)
         .add_plugin(bounce::BouncePlugin)
-        .add_startup_system(initialize.system().label("init"))
-        .add_system(keys.system())
+        .add_startup_system(initialize.label("init"))
+        .add_system(keys)
         .run();
 }
 
-#[derive(Debug)]
+#[derive(Component, Debug)]
 pub struct Display {
     scale: f32,
     window_size: Vec2,

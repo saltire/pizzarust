@@ -6,29 +6,25 @@ use super::constants::*;
 pub struct ScenePlugin;
 
 impl Plugin for ScenePlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app
-            .add_startup_system(black_bars.system().after("init"))
-            .add_startup_system(scene.system().after("init"));
+            .add_startup_system(black_bars.after("init"))
+            .add_startup_system(scene.after("init"));
     }
 }
 
 fn scene(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    let grid_handle = asset_server.load("grid-480x270.png");
-
     commands.spawn_bundle(SpriteBundle {
-        material: materials.add(grid_handle.into()),
+        texture: asset_server.load("grid-480x270.png"),
         ..Default::default()
     });
 }
 
 fn black_bars(
     mut commands: Commands,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     displays: Query<&super::Display>,
 ) {
     for display in displays.iter() {
@@ -45,7 +41,7 @@ fn black_bars(
                 },
                 ..Default::default()
             },
-            material: materials.add(Color::BLACK.into()),
+            color: Color::BLACK.into(),
             ..Default::default()
         });
 
@@ -59,7 +55,7 @@ fn black_bars(
                 },
                 ..Default::default()
             },
-            material: materials.add(Color::BLACK.into()),
+            color: Color::BLACK.into(),
             ..Default::default()
         });
 
@@ -73,7 +69,7 @@ fn black_bars(
                 },
                 ..Default::default()
             },
-            material: materials.add(Color::BLACK.into()),
+            color: Color::BLACK.into(),
             ..Default::default()
         });
 
@@ -87,7 +83,7 @@ fn black_bars(
                 },
                 ..Default::default()
             },
-            material: materials.add(Color::BLACK.into()),
+            color: Color::BLACK.into(),
             ..Default::default()
         });
     }

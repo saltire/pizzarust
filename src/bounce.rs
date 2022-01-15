@@ -5,8 +5,8 @@ use std::f32::consts::TAU;
 pub struct BouncePlugin;
 
 impl Plugin for BouncePlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_system(bounce.system());
+    fn build(&self, app: &mut App) {
+        app.add_system(bounce);
     }
 }
 
@@ -26,6 +26,7 @@ pub struct BounceEffect {
     pub current_offset: Vec2,
 }
 
+#[derive(Component)]
 pub struct Bounce {
     pub effects: Vec<BounceEffect>,
 }
