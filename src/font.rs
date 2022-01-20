@@ -99,6 +99,7 @@ fn create_text(mut commands: Commands) {
             text: "Pizza!".into(),
             font: "BluePink".into(),
             padding: 6.,
+            position: Vec3::new(50., 50., 2.),
             ..Default::default()
         })
         .insert(Bounce {

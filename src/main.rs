@@ -5,6 +5,7 @@ mod bounce;
 mod constants;
 mod cursor;
 mod font;
+mod mesh;
 mod scene;
 
 use constants::*;
@@ -19,13 +20,14 @@ fn main() {
             mode: WindowMode::Fullscreen,
             ..Default::default()
         })
-        .add_plugins(DefaultPlugins)
-        .add_plugin(scene::ScenePlugin)
-        .add_plugin(cursor::CursorPlugin)
-        .add_plugin(font::FontPlugin)
-        .add_plugin(bounce::BouncePlugin)
         .add_startup_system_to_stage(StartupStage::PreStartup, initialize)
         .add_system(keys)
+        .add_plugins(DefaultPlugins)
+        .add_plugin(bounce::BouncePlugin)
+        .add_plugin(cursor::CursorPlugin)
+        .add_plugin(font::FontPlugin)
+        .add_plugin(mesh::MeshPlugin)
+        .add_plugin(scene::ScenePlugin)
         .run();
 }
 
