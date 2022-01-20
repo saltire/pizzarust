@@ -11,7 +11,7 @@ pub struct CursorPlugin;
 impl Plugin for CursorPlugin {
     fn build (&self, app: &mut App) {
         app
-            .add_startup_system(create_cursor.after("init"))
+            .add_startup_system(create_cursor)
             .add_system(move_cursor);
     }
 }

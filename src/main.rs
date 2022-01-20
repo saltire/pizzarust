@@ -24,12 +24,12 @@ fn main() {
         .add_plugin(cursor::CursorPlugin)
         .add_plugin(font::FontPlugin)
         .add_plugin(bounce::BouncePlugin)
-        .add_startup_system(initialize.label("init"))
+        .add_startup_system_to_stage(StartupStage::PreStartup, initialize)
         .add_system(keys)
         .run();
 }
 
-#[derive(Component, Debug)]
+#[derive(Debug)]
 pub struct Display {
     scale: f32,
     window_size: Vec2,
@@ -47,7 +47,7 @@ fn initialize(
 
         window.set_scale_factor_override(Some(scale.into()));
 
-        commands.spawn().insert(Display {
+        commands.insert_resource(Display {
             scale,
             window_size,
         });
