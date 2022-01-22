@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 bevy = "0.6"
+bevy_asset_loader = "0.8"
+image = "0.23.14"

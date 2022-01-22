@@ -18,8 +18,8 @@ pub struct MeshPlugin;
 impl Plugin for MeshPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_plugin(Material2dPlugin::<CycleMaterial>::default())
-            .add_startup_system(spawn_mesh);
+            .add_plugin(Material2dPlugin::<CycleMaterial>::default());
+            // .add_startup_system(spawn_mesh);
 
         let render_device = app.world.get_resource::<RenderDevice>().unwrap();
         let buffer = render_device.create_buffer(&BufferDescriptor {
@@ -39,7 +39,7 @@ impl Plugin for MeshPlugin {
     }
 }
 
-fn spawn_mesh(
+fn _spawn_mesh(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<CycleMaterial>>,
@@ -64,8 +64,8 @@ fn spawn_mesh(
 // The material needs a type uuid in order to be used as an asset, and thus a render asset.
 #[derive(Debug, Clone, TypeUuid)]
 #[uuid = "7db45bd1-8b6e-4c11-bbdc-c5836a645e37"]
-struct CycleMaterial {
-    image: Option<Handle<Image>>,
+pub struct CycleMaterial {
+    pub image: Option<Handle<Image>>,
 }
 
 // Time data to be extracted into the render world.
@@ -84,7 +84,7 @@ fn extract_time(
 }
 
 // A buffer for time data to pass to the shader.
-struct ElapsedBuffer {
+pub struct ElapsedBuffer {
     buffer: Buffer,
 }
 
@@ -99,7 +99,7 @@ fn prepare_time_buffer(
 }
 
 // Everything the GPU needs to know to render our material.
-struct PreparedCycleMaterial {
+pub struct PreparedCycleMaterial {
     pub bind_group: BindGroup,
 }
 
