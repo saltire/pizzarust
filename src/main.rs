@@ -17,7 +17,7 @@ fn main() {
         .insert_resource(WindowDescriptor {
             title: "Pizza".into(),
             cursor_visible: false,
-            mode: WindowMode::Fullscreen,
+            mode: WindowMode::Windowed,
             ..Default::default()
         })
         .add_startup_system_to_stage(StartupStage::PreStartup, initialize)
@@ -42,6 +42,8 @@ fn initialize(
     mut windows: ResMut<Windows>,
 ) {
     if let Some(window) = windows.get_primary_mut() {
+        window.set_resolution(PIXEL_WIDTH * 2., PIXEL_HEIGHT * 2.);
+
         let window_size = Vec2::new(window.width(), window.height());
         let scale_x = window_size.x / PIXEL_WIDTH;
         let scale_y = window_size.y / PIXEL_HEIGHT;

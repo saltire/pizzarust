@@ -16,6 +16,10 @@ struct Mesh2d {
     flags: u32;
 };
 
+struct Elapsed {
+  seconds: f32;
+};
+
 [[group(0), binding(0)]]
 var<uniform> view: View;
 
@@ -23,6 +27,8 @@ var<uniform> view: View;
 var texture: texture_2d<f32>;
 [[group(1), binding(1)]]
 var texture_sampler: sampler;
+[[group(1), binding(2)]]
+var<uniform> elapsed: Elapsed;
 
 [[group(2), binding(0)]]
 var<uniform> mesh: Mesh2d;
@@ -37,8 +43,35 @@ struct FragmentInput {
 #endif
 };
 
+
+fn rgb2hsv(c: vec4<f32>) -> vec4<f32> {
+    var k = vec4<f32>(0., -1. / 3., 2. / 3., -1.);
+
+    var p = mix(vec4<f32>(c.bg, k.wz), vec4<f32>(c.gb, k.xy), step(c.b, c.g));
+    var q = mix(vec4<f32>(p.xyw, c.r), vec4<f32>(c.r, p.yzx), step(p.x, c.r));
+
+    var d = q.x - min(q.w, q.y);
+    var e = 1.0e-10;
+
+    return vec4<f32>(abs(q.z + (q.w - q.y) / (6. * d + e)), d / (q.x + e), q.x, c.a);
+}
+
+fn hsv2rgb(c: vec4<f32>) -> vec4<f32> {
+    var k = vec4<f32>(1., 2. / 3., 1. / 3., 3.);
+
+    var p = abs(fract(c.xxx + k.xyz) * 6. - k.www);
+
+    return vec4<f32>(
+        c.z * mix(k.xxx, clamp(p - k.xxx, vec3<f32>(0., 0., 0.), vec3<f32>(1., 1., 1.)), c.y), c.a);
+}
+
 [[stage(fragment)]]
 fn fragment(in: FragmentInput) -> [[location(0)]] vec4<f32> {
-    var output_color: vec4<f32> = textureSample(texture, texture_sampler, in.uv);
-    return output_color;
+    var tex_color: vec4<f32> = textureSample(texture, texture_sampler, in.uv);
+
+    var color_hsv = rgb2hsv(tex_color);
+
+    color_hsv.x = color_hsv.x + elapsed.seconds;
+
+    return hsv2rgb(color_hsv);
 }
