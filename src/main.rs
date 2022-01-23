@@ -42,7 +42,7 @@ fn initialize(
     mut windows: ResMut<Windows>,
 ) {
     if let Some(window) = windows.get_primary_mut() {
-        window.set_resolution(PIXEL_WIDTH, PIXEL_HEIGHT);
+        window.set_resolution(PIXEL_WIDTH * 1.5, PIXEL_HEIGHT * 1.5);
 
         let window_size = Vec2::new(window.width(), window.height());
         let scale_x = window_size.x / PIXEL_WIDTH;

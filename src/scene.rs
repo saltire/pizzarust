@@ -8,12 +8,12 @@ pub struct ScenePlugin;
 impl Plugin for ScenePlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_startup_system(black_bars);
-            // .add_startup_system(scene);
+            .add_startup_system(black_bars)
+            .add_startup_system(scene);
     }
 }
 
-fn _scene(
+fn scene(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {

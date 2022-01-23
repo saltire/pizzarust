@@ -71,7 +71,10 @@ fn fragment(in: FragmentInput) -> [[location(0)]] vec4<f32> {
 
     var color_hsv = rgb2hsv(tex_color);
 
-    color_hsv.x = color_hsv.x + elapsed.seconds;
+    var dims = textureDimensions(texture);
+    var pixmod = (in.uv.x * f32(dims.x) + in.uv.y * f32(dims.y)) / 100.;
+
+    color_hsv.x = color_hsv.x + elapsed.seconds - pixmod;
 
     return hsv2rgb(color_hsv);
 }
