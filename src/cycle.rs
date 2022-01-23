@@ -13,9 +13,9 @@ use bevy::{
 };
 
 
-pub struct MeshPlugin;
+pub struct CyclePlugin;
 
-impl Plugin for MeshPlugin {
+impl Plugin for CyclePlugin {
     fn build(&self, app: &mut App) {
         app
             .add_plugin(Material2dPlugin::<CycleMaterial>::default());

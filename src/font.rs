@@ -1,6 +1,8 @@
-use bevy::prelude::*;
-use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
-use bevy::sprite::MaterialMesh2dBundle;
+use bevy::{
+    prelude::*,
+    render::render_resource::{Extent3d, TextureDimension, TextureFormat},
+    sprite::MaterialMesh2dBundle,
+};
 use bevy_asset_loader::{AssetLoader, AssetCollection};
 use image::{
     GenericImageView, Rgba, RgbaImage,
@@ -8,7 +10,7 @@ use image::{
 };
 
 use super::bounce::{Bounce, BounceEffect, EffectType};
-use super::mesh::CycleMaterial;
+use super::cycle::CycleMaterial;
 
 
 pub struct FontPlugin;
