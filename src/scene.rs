@@ -15,7 +15,7 @@ fn scene(
     asset_server: Res<AssetServer>,
 ) {
     commands.spawn_bundle(SpriteBundle {
-        texture: asset_server.load("grid-480x270.png"),
+        texture: asset_server.load("grid-960x540.png"),
         ..Default::default()
     });
 }

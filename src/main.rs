@@ -9,16 +9,14 @@ mod display;
 mod font;
 mod scene;
 
-use constants::*;
-
 
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(WindowDescriptor {
             resize_constraints: WindowResizeConstraints {
-                min_width: PIXEL_WIDTH,
-                min_height: PIXEL_HEIGHT,
+                min_width: 320.,
+                min_height: 180.,
                 ..Default::default()
             },
             title: "Pizza".into(),
