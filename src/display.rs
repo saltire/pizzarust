@@ -47,7 +47,6 @@ fn init_display(
     mut windows: ResMut<Windows>,
 ) {
     let window = windows.get_primary_mut().expect("Window not found.");
-    window.set_resolution(DISPLAYS[2].width * 2., DISPLAYS[2].height * 2.);
     size_window(&mut commands, window, &DISPLAYS[0]);
     commands.insert_resource(DISPLAYS[0]);
 }

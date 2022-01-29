@@ -9,11 +9,15 @@ mod display;
 mod font;
 mod scene;
 
+use constants::*;
+
 
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(WindowDescriptor {
+            width: INITIAL_SIZE_X,
+            height: INITIAL_SIZE_Y,
             resize_constraints: WindowResizeConstraints {
                 min_width: 320.,
                 min_height: 180.,
