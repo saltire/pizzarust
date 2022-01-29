@@ -63,6 +63,8 @@ struct BitmapFont {
 struct FontAssets {
     #[asset(path = "fonts/32X32-FA.png")]
     bluepink: Handle<Image>,
+    #[asset(path = "fonts/dinobyte.png")]
+    dinobyte: Handle<Image>,
     #[asset(path = "fonts/elecfont.png")]
     elecfont: Handle<Image>,
     #[asset(path = "fonts/fantfont.png")]
@@ -76,7 +78,6 @@ struct FontAssets {
 fn load_fonts(
     mut commands: Commands,
     font_assets: Res<FontAssets>,
-    // asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     let fonts = vec![
@@ -85,6 +86,13 @@ fn load_fonts(
             asset_handle: font_assets.bluepink.clone(),
             tile_size: Vec2::new(32., 32.),
             grid_size: Vec2::new(10., 6.),
+            char_map: CharMap::Ascii,
+        },
+        FontInfo {
+            name: "Dinobyte".into(),
+            asset_handle: font_assets.dinobyte.clone(),
+            tile_size: Vec2::new(6., 8.),
+            grid_size: Vec2::new(16., 6.),
             char_map: CharMap::Ascii,
         },
         FontInfo {
@@ -154,8 +162,8 @@ fn create_text(
     mut commands: Commands
 ) {
     // commands.spawn().insert(BitmapText {
-    //     text: "Nemo et voluptas et cumque ipsum cumque inventore. Eveniet soluta odio sint aut asperiores et. Maxime unde cupiditate sunt dolor corporis nihil.".to_string(),
-    //     font: "GeeBee".to_string(),
+    //     text: "Nemo et voluptas et cumque ipsum cumque inventore. Eveniet soluta odio sint aut asperiores et. Maxime unde cupiditate sunt dolor corporis nihil.".to_uppercase(),
+    //     font: "GeeBee".into(),
     //     position: Vec3::new(-100., 0., 2.),
     //     box_size: Vec2::new(160., 200.),
     //     padding: 4.,
@@ -165,7 +173,7 @@ fn create_text(
 
     commands.spawn()
         .insert(BitmapText {
-            text: "Pizza!".into(),
+            text: "PIZZA!".into(),
             font: "Elecfont".into(),
             padding: 6.,
             // background_color: Color::rgb(0.1, 0.1, 0.2),
@@ -231,7 +239,7 @@ fn wrap_lines(text: &str, maxlen: usize) -> Vec<&str> {
 
 fn get_char_index(char: char, char_map: &CharMap) -> Option<usize> {
     match char_map {
-        CharMap::Ascii => " !\"#$%&'()*+'-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        CharMap::Ascii => " !\"#$%&'()*+'-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~",
         CharMap::TSK => "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,()0123456789",
     }.find(char)
 }
@@ -285,7 +293,7 @@ fn render_text(
         for (y, line) in lines.iter().enumerate() {
             let offset_y = text.padding + font.info.tile_size.y * y as f32;
 
-            for (x, c) in line.to_uppercase().char_indices() {
+            for (x, c) in line.char_indices() {
                 if let Some(index) = get_char_index(c, &font.info.char_map) {
                     if let Some(rect) = texture_atlas.textures.get(index) {
                         let view = atlas_image.view(
