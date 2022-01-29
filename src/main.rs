@@ -12,6 +12,9 @@ mod scene;
 use constants::*;
 
 
+#[derive(Component)]
+struct MainCamera;
+
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::BLACK))
@@ -28,7 +31,7 @@ fn main() {
             mode: WindowMode::Windowed,
             ..Default::default()
         })
-        .add_startup_system(init_cameras)
+        .add_startup_system_to_stage(StartupStage::PreStartup, init_cameras)
         .add_system(keys)
         .add_plugins(DefaultPlugins)
         .add_plugin(bounce::BouncePlugin)
@@ -44,7 +47,7 @@ fn init_cameras(
     mut commands: Commands,
 ) {
     commands.spawn_bundle(UiCameraBundle::default());
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
+    commands.spawn_bundle(OrthographicCameraBundle::new_2d()).insert(MainCamera);
 }
 
 fn keys(keys: Res<Input<KeyCode>>) {
