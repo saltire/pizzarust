@@ -54,6 +54,7 @@ fn init_display(
 
 fn switch_resolution(
     mut commands: Commands,
+    mut cursor_events: EventWriter<CursorMoved>,
     keys: Res<Input<KeyCode>>,
     mut windows: ResMut<Windows>,
     display: Res<Display>,
@@ -70,6 +71,13 @@ fn switch_resolution(
         clear_bars(&mut commands, &black_bars);
         size_window(&mut commands, window, &DISPLAYS[index]);
         commands.insert_resource(DISPLAYS[index]);
+
+        if let Some(position) = window.cursor_position() {
+            cursor_events.send(CursorMoved {
+                id: window.id(),
+                position,
+            });
+        }
     }
 }
 
