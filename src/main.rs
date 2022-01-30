@@ -13,7 +13,7 @@ use constants::*;
 
 
 #[derive(Component)]
-struct MainCamera;
+pub struct MainCamera;
 
 fn main() {
     App::new()
