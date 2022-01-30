@@ -5,11 +5,11 @@ use super::MainCamera;
 
 
 #[derive(Clone, Copy, Debug)]
-struct Display {
-    width: f32,
-    height: f32,
-    camera_x: f32,
-    camera_y: f32,
+pub struct Display {
+    pub width: f32,
+    pub height: f32,
+    pub camera_x: f32,
+    pub camera_y: f32,
 }
 
 const DISPLAYS: [Display; 5] = [

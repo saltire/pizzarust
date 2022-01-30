@@ -30,8 +30,8 @@ fn create_cursor(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    let default_image = asset_server.load("hand-cursor.png");
-    let topping_image = asset_server.load("circle10.png");
+    let default_image = asset_server.load("cursor-hand.png");
+    let topping_image = asset_server.load("cursor-circle.png");
 
     // Put cursor inside a blank parent node as this bumps its z-index above the black bars.
     commands

@@ -2437,6 +2437,7 @@ dependencies = [
  "bevy",
  "bevy_asset_loader",
  "image",
+ "rand",
 ]
 
 [[package]]
