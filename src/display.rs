@@ -45,6 +45,16 @@ const DISPLAYS: [Display; 5] = [
     },
 ];
 
+enum Edge {
+    Top,
+    Bottom,
+    Left,
+    Right,
+}
+
+#[derive(Component)]
+struct BlackBar(Edge);
+
 pub struct DisplayPlugin;
 
 impl Plugin for DisplayPlugin {
@@ -58,13 +68,13 @@ impl Plugin for DisplayPlugin {
 
 fn init_display(
     mut commands: Commands,
-    mut windows: ResMut<Windows>,
-    mut cameras: Query<&mut Transform, With<MainCamera>>,
 ) {
-    let window = windows.get_primary_mut().expect("Window not found.");
-    let mut camera = cameras.get_single_mut().expect("Camera not found.");
-    size_window(&mut commands, window, &mut camera, &DISPLAYS[0]);
     commands.insert_resource(DISPLAYS[0]);
+
+    spawn_black_bar(&mut commands, Edge::Top);
+    spawn_black_bar(&mut commands, Edge::Bottom);
+    spawn_black_bar(&mut commands, Edge::Left);
+    spawn_black_bar(&mut commands, Edge::Right);
 }
 
 fn switch_resolution(
@@ -74,7 +84,7 @@ fn switch_resolution(
     mut windows: ResMut<Windows>,
     mut cameras: Query<&mut Transform, With<MainCamera>>,
     display: Res<Display>,
-    black_bars: Query<Entity, With<BlackBar>>,
+    mut black_bars: Query<(&BlackBar, &mut Style)>,
 ) {
     if keys.just_released(KeyCode::Space) {
         let window = windows.get_primary_mut().expect("Window not found.");
@@ -85,8 +95,7 @@ fn switch_resolution(
             None => 0,
         };
 
-        clear_bars(&mut commands, &black_bars);
-        size_window(&mut commands, window, &mut camera, &DISPLAYS[index]);
+        size_window(window, &mut camera, &DISPLAYS[index], &mut black_bars);
         commands.insert_resource(DISPLAYS[index]);
 
         if let Some(position) = window.cursor_position() {
@@ -99,38 +108,24 @@ fn switch_resolution(
 }
 
 fn handle_resize(
-    mut commands: Commands,
     mut windows: ResMut<Windows>,
     mut cameras: Query<&mut Transform, With<MainCamera>>,
     mut window_resized_events: EventReader<WindowResized>,
-    black_bars: Query<Entity, With<BlackBar>>,
+    mut black_bars: Query<(&BlackBar, &mut Style)>,
     display: Res<Display>,
 ) {
     let window = windows.get_primary_mut().expect("Window not found.");
     let mut camera = cameras.get_single_mut().expect("Camera not found.");
     if window_resized_events.iter().any(|event| event.id == window.id()) {
-        clear_bars(&mut commands, &black_bars);
-        size_window(&mut commands, window, &mut camera, &display);
+        size_window(window, &mut camera, &display, &mut black_bars);
     }
 }
-
-fn clear_bars(
-    commands: &mut Commands,
-    black_bars: &Query<Entity, With<BlackBar>>,
-) {
-    for black_bar in black_bars.iter() {
-        commands.entity(black_bar).despawn();
-    }
-}
-
-#[derive(Component)]
-struct BlackBar;
 
 fn size_window(
-    commands: &mut Commands,
     window: &mut Window,
     camera_transform: &mut Transform,
     display: &Display,
+    black_bars: &mut Query<(&BlackBar, &mut Style)>,
 ) {
     let max_display = DISPLAYS[4];
 
@@ -152,46 +147,34 @@ fn size_window(
     let bar_width = (window.width() - display.width) / 2.;
     let bar_height = (window.height() - display.height) / 2.;
 
-    spawn_black_bar(
-        commands,
-        Size::new(Val::Percent(100.), Val::Px(bar_height)),
-        Rect { top: Val::Px(0.), ..Default::default() },
-    );
-
-    spawn_black_bar(
-        commands,
-        Size::new(Val::Percent(100.), Val::Px(bar_height)),
-        Rect { bottom: Val::Px(0.), ..Default::default() },
-    );
-
-    spawn_black_bar(
-        commands,
-        Size::new(Val::Px(bar_width), Val::Percent(100.)),
-        Rect { left: Val::Px(0.), ..Default::default() },
-    );
-
-    spawn_black_bar(
-        commands,
-        Size::new(Val::Px(bar_width), Val::Percent(100.)),
-        Rect { right: Val::Px(0.), ..Default::default() },
-    );
+    for (BlackBar(edge), mut style) in black_bars.iter_mut() {
+        style.size = match edge {
+            Edge::Top => Size::new(Val::Percent(100.), Val::Px(bar_height)),
+            Edge::Bottom => Size::new(Val::Percent(100.), Val::Px(bar_height)),
+            Edge::Left => Size::new(Val::Px(bar_width), Val::Percent(100.)),
+            Edge::Right => Size::new(Val::Px(bar_width), Val::Percent(100.)),
+        };
+        style.position = match edge {
+            Edge::Top => Rect { top: Val::Px(0.), ..Default::default() },
+            Edge::Bottom => Rect { bottom: Val::Px(0.), ..Default::default() },
+            Edge::Left => Rect { left: Val::Px(0.), ..Default::default() },
+            Edge::Right => Rect { right: Val::Px(0.), ..Default::default() },
+        };
+    }
 }
 
 fn spawn_black_bar(
     commands: &mut Commands,
-    size: Size<Val>,
-    position: Rect<Val>,
+    edge: Edge,
 ) {
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
-                size,
                 position_type: PositionType::Absolute,
-                position,
                 ..Default::default()
             },
             color: Color::BLACK.into(),
             ..Default::default()
         })
-        .insert(BlackBar);
+        .insert(BlackBar(edge));
 }
