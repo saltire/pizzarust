@@ -33,6 +33,7 @@ const CONVEYOR_Z: f32 = 1.;
 const CONVEYOR_SPEED: f32 = 20.;
 const PIZZA_Z: f32 = 2.;
 const PIZZA_SPAWN_MARGIN: f32 = 40.;
+const TOPPING_Z: f32 = 3.;
 
 #[derive(Component)]
 struct Conveyor {
@@ -159,7 +160,7 @@ fn move_pizzas(
 
                 // Remove any pizzas that have moved past the right edge.
                 if transform.translation.x >= despawn_x {
-                    commands.entity(entity).despawn();
+                    commands.entity(entity).despawn_recursive();
                 }
             }
 
@@ -210,35 +211,57 @@ fn click_toppings(
                     if diff.length() < 40. { Some((e, p)) } else { None }
                 }) {
                     pizza.toppings.push(held_topping.clone());
+                    let topping_z = TOPPING_Z + pizza.toppings.len() as f32;
 
-                    let texture = asset_server.load("circle10.png");
                     let mut rng = thread_rng();
-                    let count = rng.gen_range(10..=16);
 
                     commands.entity(entity).with_children(|parent| {
-                        for _ in 0..count {
-                            let angle = rng.gen_range(0.0..TAU);
-                            let r: f32 = rng.gen();
-                            let radius = r.sqrt() * 33.;
-                            // let r2: f32 = rng.gen();
-                            // let u = r + r2;
-                            // let radius = if u > 1. { 2. - u } else { u } * 33.;
+                        match held_topping.placement {
+                            Placement::Cover => {
+                                parent.spawn_bundle(SpriteBundle {
+                                    sprite: Sprite {
+                                        color: held_topping.color,
+                                        ..Default::default()
+                                    },
+                                    transform: Transform {
+                                        translation: Vec3::new(0., 0., topping_z),
+                                        rotation: Quat::from_rotation_z(
+                                            rng.gen_range(0..4) as f32 * 90.),
+                                        ..Default::default()
+                                    },
+                                    texture: asset_server.load("pizzaspread.png"),
+                                    ..Default::default()
+                                });
+                            }
+                            Placement::Scatter => {
+                                let texture = asset_server.load("circle10.png");
+                                let count = rng.gen_range(10..=16);
 
-                            parent.spawn_bundle(SpriteBundle {
-                                sprite: Sprite {
-                                    color: held_topping.color,
-                                    ..Default::default()
-                                },
-                                transform: Transform {
-                                    translation: Vec3::new(
-                                        (angle.cos() * radius).round(),
-                                        (angle.sin() * radius).round(),
-                                        3.),
-                                    ..Default::default()
-                                },
-                                texture: texture.clone(),
-                                ..Default::default()
-                            });
+                                for _ in 0..count {
+                                    let angle = rng.gen_range(0.0..TAU);
+                                    let r: f32 = rng.gen();
+                                    let radius = r.sqrt() * 33.;
+                                    // let r2: f32 = rng.gen();
+                                    // let u = r + r2;
+                                    // let radius = if u > 1. { 2. - u } else { u } * 33.;
+
+                                    parent.spawn_bundle(SpriteBundle {
+                                        sprite: Sprite {
+                                            color: held_topping.color,
+                                            ..Default::default()
+                                        },
+                                        transform: Transform {
+                                            translation: Vec3::new(
+                                                (angle.cos() * radius).round(),
+                                                (angle.sin() * radius).round(),
+                                                topping_z),
+                                            ..Default::default()
+                                        },
+                                        texture: texture.clone(),
+                                        ..Default::default()
+                                    });
+                                }
+                            }
                         }
                     });
 
