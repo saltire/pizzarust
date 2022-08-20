@@ -1,9 +1,9 @@
 use bevy::{
-    core::Time,
     ecs::system::{lifetimeless::SRes, SystemParamItem},
     prelude::*,
     reflect::TypeUuid,
     render::{
+        Extract,
         render_asset::{PrepareAssetError, RenderAsset, RenderAssets},
         render_resource::*,
         renderer::{RenderDevice, RenderQueue},
@@ -62,7 +62,7 @@ fn _spawn_mesh(
 }
 
 // The material needs a type uuid in order to be used as an asset, and thus a render asset.
-#[derive(Debug, Clone, TypeUuid)]
+#[derive(AsBindGroup, Clone, Debug, TypeUuid)]
 #[uuid = "7db45bd1-8b6e-4c11-bbdc-c5836a645e37"]
 pub struct CycleMaterial {
     pub image: Option<Handle<Image>>,
@@ -76,7 +76,7 @@ struct Elapsed {
 // Take the time resource from the app world and save the elapsed time into the render world.
 fn extract_time(
     mut commands: Commands,
-    time: Res<Time>,
+    time: Extract<Res<Time>>,
 ) {
     commands.insert_resource(Elapsed {
         seconds: time.seconds_since_startup() as f32,
@@ -160,50 +160,50 @@ impl RenderAsset for CycleMaterial {
 
 impl Material2d for CycleMaterial {
     // Assign the fragment shader for the material.
-    fn fragment_shader(asset_server: &AssetServer) -> Option<Handle<Shader>> {
-        Some(asset_server.load("cycle.wgsl"))
+    fn fragment_shader() -> ShaderRef {
+        "cycle.wgsl".into()
     }
 
-    // Get the bind group from the prepared material.
-    fn bind_group(material: &Self::PreparedAsset) -> &BindGroup {
-        &material.bind_group
-    }
+    // // Get the bind group from the prepared material.
+    // fn bind_group(material: &Self::PreparedAsset) -> &BindGroup {
+    //     &material.bind_group
+    // }
 
-    // Define the layout for this material's bind group.
-    fn bind_group_layout(render_device: &RenderDevice) -> BindGroupLayout {
-        render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-            label: Some("Cycle Material Bind Group Layout"),
-            entries: &[
-                // Texture
-                BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: ShaderStages::FRAGMENT,
-                    ty: BindingType::Texture {
-                        multisampled: false,
-                        sample_type: TextureSampleType::Float { filterable: true },
-                        view_dimension: TextureViewDimension::D2,
-                    },
-                    count: None,
-                },
-                // Texture sampler
-                BindGroupLayoutEntry {
-                    binding: 1,
-                    visibility: ShaderStages::FRAGMENT,
-                    ty: BindingType::Sampler(SamplerBindingType::Filtering),
-                    count: None,
-                },
-                // Time elapsed
-                BindGroupLayoutEntry {
-                    binding: 2,
-                    visibility: ShaderStages::FRAGMENT,
-                    ty: BindingType::Buffer {
-                        ty: BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
-                        min_binding_size: BufferSize::new(std::mem::size_of::<f32>() as u64),
-                    },
-                    count: None,
-                },
-            ],
-        })
-    }
+    // // Define the layout for this material's bind group.
+    // fn bind_group_layout(render_device: &RenderDevice) -> BindGroupLayout {
+    //     render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+    //         label: Some("Cycle Material Bind Group Layout"),
+    //         entries: &[
+    //             // Texture
+    //             BindGroupLayoutEntry {
+    //                 binding: 0,
+    //                 visibility: ShaderStages::FRAGMENT,
+    //                 ty: BindingType::Texture {
+    //                     multisampled: false,
+    //                     sample_type: TextureSampleType::Float { filterable: true },
+    //                     view_dimension: TextureViewDimension::D2,
+    //                 },
+    //                 count: None,
+    //             },
+    //             // Texture sampler
+    //             BindGroupLayoutEntry {
+    //                 binding: 1,
+    //                 visibility: ShaderStages::FRAGMENT,
+    //                 ty: BindingType::Sampler(SamplerBindingType::Filtering),
+    //                 count: None,
+    //             },
+    //             // Time elapsed
+    //             BindGroupLayoutEntry {
+    //                 binding: 2,
+    //                 visibility: ShaderStages::FRAGMENT,
+    //                 ty: BindingType::Buffer {
+    //                     ty: BufferBindingType::Uniform,
+    //                     has_dynamic_offset: false,
+    //                     min_binding_size: BufferSize::new(std::mem::size_of::<f32>() as u64),
+    //                 },
+    //                 count: None,
+    //             },
+    //         ],
+    //     })
+    // }
 }

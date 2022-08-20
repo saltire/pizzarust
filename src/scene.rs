@@ -1,6 +1,6 @@
 use bevy::{
     input::{
-        ElementState,
+        ButtonState,
         mouse::{MouseButton, MouseButtonInput},
     },
     math::Vec3Swizzles,
@@ -156,7 +156,7 @@ fn move_pizzas(
         if conveyor.timer.tick(time.delta()).just_finished() {
             for (entity, mut transform) in pizzas.iter_mut() {
                 // Move pizzas.
-                transform.translation.x += conveyor.timer.times_finished() as f32;
+                transform.translation.x += conveyor.timer.times_finished_this_tick() as f32;
 
                 // Remove any pizzas that have moved past the right edge.
                 if transform.translation.x >= despawn_x {
@@ -194,7 +194,7 @@ fn click_toppings(
 ) {
     if let Some(position) = cursor::get_world_coords(windows, cameras) {
         if click_events.iter().any(|e| {
-            e.button == MouseButton::Left && e.state == ElementState::Released
+            e.button == MouseButton::Left && e.state == ButtonState::Released
         }) {
             // If click was on a topping container, change the cursor to that topping.
             if let Some(container) = containers.iter().find_map(|(c, t)| {

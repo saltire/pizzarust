@@ -155,10 +155,10 @@ fn size_window(
             Edge::Right => Size::new(Val::Px(bar_width), Val::Percent(100.)),
         };
         style.position = match edge {
-            Edge::Top => Rect { top: Val::Px(0.), ..Default::default() },
-            Edge::Bottom => Rect { bottom: Val::Px(0.), ..Default::default() },
-            Edge::Left => Rect { left: Val::Px(0.), ..Default::default() },
-            Edge::Right => Rect { right: Val::Px(0.), ..Default::default() },
+            Edge::Top => UiRect { top: Val::Px(0.), ..Default::default() },
+            Edge::Bottom => UiRect { bottom: Val::Px(0.), ..Default::default() },
+            Edge::Left => UiRect { left: Val::Px(0.), ..Default::default() },
+            Edge::Right => UiRect { right: Val::Px(0.), ..Default::default() },
         };
     }
 }

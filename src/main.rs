@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::render::texture::ImageSettings;
 use bevy::window::{WindowMode, WindowResizeConstraints};
 
 mod bounce;
@@ -31,8 +32,9 @@ fn main() {
             mode: WindowMode::Windowed,
             ..Default::default()
         })
+        .insert_resource(ImageSettings::default_nearest())
         .add_startup_system_to_stage(StartupStage::PreStartup, init_cameras)
-        .add_system(keys)
+        .add_system(bevy::window::close_on_esc)
         .add_plugins(DefaultPlugins)
         .add_plugin(bounce::BouncePlugin)
         .add_plugin(cursor::CursorPlugin)
@@ -46,12 +48,5 @@ fn main() {
 fn init_cameras(
     mut commands: Commands,
 ) {
-    commands.spawn_bundle(UiCameraBundle::default());
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d()).insert(MainCamera);
-}
-
-fn keys(keys: Res<Input<KeyCode>>) {
-    if keys.just_released(KeyCode::Escape) {
-        std::process::exit(0);
-    }
+    commands.spawn_bundle(Camera2dBundle::default()).insert(MainCamera);
 }

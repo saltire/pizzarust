@@ -48,7 +48,7 @@ fn create_cursor(
                 .spawn_bundle(ImageBundle {
                     style: Style {
                         position_type: PositionType::Absolute,
-                        position: Rect {
+                        position: UiRect {
                             left: Val::Percent(50.),
                             bottom: Val::Percent(50.),
                             ..Default::default()
@@ -71,7 +71,7 @@ fn move_cursor(
 ) {
     for event in cursor_moved_events.iter() {
         for mut style in cursors.iter_mut() {
-            style.position = Rect {
+            style.position = UiRect {
                 left: Val::Px(event.position.x.floor() - CURSOR_HOTSPOT_X),
                 bottom: Val::Px(event.position.y.ceil() - CURSOR_HOTSPOT_Y - 1.),
                 ..Default::default()

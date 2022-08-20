@@ -3,7 +3,7 @@ use bevy::{
     render::render_resource::{Extent3d, TextureDimension, TextureFormat},
     sprite::MaterialMesh2dBundle,
 };
-use bevy_asset_loader::{AssetLoader, AssetCollection};
+use bevy_asset_loader::prelude::*;
 use image::{
     GenericImageView, Rgba, RgbaImage,
     imageops::overlay,
@@ -17,12 +17,11 @@ pub struct FontPlugin;
 
 impl Plugin for FontPlugin {
     fn build(&self, app: &mut App) {
-        AssetLoader::new(FontState::FontsLoading)
-            .continue_to_state(FontState::FontsReady)
-            .with_collection::<FontAssets>()
-            .build(app);
-
         app
+            .add_loading_state(
+                LoadingState::new(FontState::FontsLoading)
+                    .continue_to_state(FontState::FontsReady)
+                    .with_collection::<FontAssets>())
             .add_state(FontState::FontsLoading)
             .add_system_set(SystemSet::on_exit(FontState::FontsLoading)
                 .with_system(load_fonts))
