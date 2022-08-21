@@ -22,6 +22,7 @@ impl Plugin for ScenePlugin {
         app
             .insert_resource(HeldTopping(None))
             .add_event::<ToppingClickEvent>()
+            .add_startup_system(background)
             .add_startup_system(scene)
             .add_system(move_pizzas)
             .add_system(click_toppings);
@@ -70,16 +71,19 @@ struct HeldTopping(Option<Topping>);
 pub struct ToppingClickEvent(pub Option<Topping>);
 
 
-fn scene(
+fn background(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    // Background
     commands.spawn_bundle(SpriteBundle {
         texture: asset_server.load("grid-960x540.png"),
         ..Default::default()
     });
+}
 
+fn scene(
+    mut commands: Commands,
+) {
     // Conveyor belt
     commands
         .spawn_bundle(SpriteBundle {

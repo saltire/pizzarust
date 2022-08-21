@@ -61,7 +61,7 @@ impl Plugin for DisplayPlugin {
     fn build (&self, app: &mut App) {
         app
             .add_startup_system(init_display)
-            .add_system(switch_resolution)
+            .add_system(switch_resolution_on_space)
             .add_system(handle_resize);
     }
 }
@@ -77,7 +77,7 @@ fn init_display(
     spawn_black_bar(&mut commands, Edge::Right);
 }
 
-fn switch_resolution(
+fn switch_resolution_on_space(
     mut commands: Commands,
     mut cursor_events: EventWriter<CursorMoved>,
     keys: Res<Input<KeyCode>>,

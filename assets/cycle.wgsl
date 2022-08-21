@@ -1,45 +1,45 @@
 struct View {
-    view_proj: mat4x4<f32>;
-    inverse_view: mat4x4<f32>;
-    projection: mat4x4<f32>;
-    world_position: vec3<f32>;
-    near: f32;
-    far: f32;
-    width: f32;
-    height: f32;
+    view_proj: mat4x4<f32>,
+    inverse_view: mat4x4<f32>,
+    projection: mat4x4<f32>,
+    world_position: vec3<f32>,
+    near: f32,
+    far: f32,
+    width: f32,
+    height: f32,
 };
 
 struct Mesh2d {
-    model: mat4x4<f32>;
-    inverse_transpose_model: mat4x4<f32>;
+    model: mat4x4<f32>,
+    inverse_transpose_model: mat4x4<f32>,
     // 'flags' is a bit field indicating various options. u32 is 32 bits so we have up to 32 options.
-    flags: u32;
+    flags: u32,
 };
 
 struct Elapsed {
-  seconds: f32;
+  seconds: f32,
 };
 
-[[group(0), binding(0)]]
+@group(0) @binding(0)
 var<uniform> view: View;
 
-[[group(1), binding(0)]]
+@group(1) @binding(0)
+var<uniform> elapsed_seconds: f32;
+@group(1) @binding(1)
 var texture: texture_2d<f32>;
-[[group(1), binding(1)]]
+@group(1) @binding(2)
 var texture_sampler: sampler;
-[[group(1), binding(2)]]
-var<uniform> elapsed: Elapsed;
 
-[[group(2), binding(0)]]
+@group(2) @binding(0)
 var<uniform> mesh: Mesh2d;
 
 struct FragmentInput {
-    [[builtin(front_facing)]] is_front: bool;
-    [[location(0)]] world_position: vec4<f32>;
-    [[location(1)]] world_normal: vec3<f32>;
-    [[location(2)]] uv: vec2<f32>;
+    @builtin(front_facing) is_front: bool,
+    @location(0) world_position: vec4<f32>,
+    @location(1) world_normal: vec3<f32>,
+    @location(2) uv: vec2<f32>,
 #ifdef VERTEX_TANGENTS
-    [[location(3)]] world_tangent: vec4<f32>;
+    @location(3) world_tangent: vec4<f32>,
 #endif
 };
 
@@ -65,8 +65,8 @@ fn hsv2rgb(c: vec4<f32>) -> vec4<f32> {
         c.z * mix(k.xxx, clamp(p - k.xxx, vec3<f32>(0., 0., 0.), vec3<f32>(1., 1., 1.)), c.y), c.a);
 }
 
-[[stage(fragment)]]
-fn fragment(in: FragmentInput) -> [[location(0)]] vec4<f32> {
+@fragment
+fn fragment(in: FragmentInput) -> @location(0) vec4<f32> {
     var tex_color: vec4<f32> = textureSample(texture, texture_sampler, in.uv);
 
     var color_hsv = rgb2hsv(tex_color);
@@ -74,7 +74,7 @@ fn fragment(in: FragmentInput) -> [[location(0)]] vec4<f32> {
     var dims = textureDimensions(texture);
     var pixmod = (in.uv.x * f32(dims.x) + in.uv.y * f32(dims.y)) / 100.;
 
-    color_hsv.x = color_hsv.x + elapsed.seconds - pixmod;
+    color_hsv.x = color_hsv.x + elapsed_seconds - pixmod;
 
     return hsv2rgb(color_hsv);
 }

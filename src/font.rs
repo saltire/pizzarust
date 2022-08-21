@@ -25,8 +25,8 @@ impl Plugin for FontPlugin {
             .add_state(FontState::FontsLoading)
             .add_system_set(SystemSet::on_exit(FontState::FontsLoading)
                 .with_system(load_fonts))
-            // .add_system_set(SystemSet::on_enter(FontState::FontsReady)
-            //     .with_system(create_text))
+            .add_system_set(SystemSet::on_enter(FontState::FontsReady)
+                .with_system(create_text))
             .add_system(render_text);
     }
 }
@@ -333,6 +333,7 @@ fn render_text(
                 },
                 material: materials.add(CycleMaterial {
                     image: Some(images.add(texture)),
+                    ..Default::default()
                 }),
                 ..Default::default()
             });
